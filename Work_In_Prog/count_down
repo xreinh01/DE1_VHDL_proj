@@ -1,0 +1,59 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity countdown_7seg is
+  port (
+    clk : in std_logic;                       -- 100 MHz clock (W5)
+    rst : in std_logic;                       -- Reset (BTNC on U18)
+    seg : out std_logic_vector(6 downto 0);   -- Segments A-G (CA to CG)
+    an  : out std_logic_vector(3 downto 0)    -- Anode control (AN0–AN3)
+  );
+end entity countdown_7seg;
+
+architecture behavioral of countdown_7seg is
+  signal digit          : unsigned(3 downto 0) := "1001"; -- Start at 9
+  signal digit_slv      : std_logic_vector(3 downto 0);
+  signal clear          : std_logic := '0';
+  signal one_sec_pulse  : std_logic;
+begin
+
+  -- Clock enable instance
+  clk_en_inst : entity work.clock_en
+    generic map (n_periods => 100_000_000)  -- 1 sec pulse
+    port map (
+      clk   => clk,
+      rst   => rst,
+      pulse => one_sec_pulse
+    );
+
+  -- Countdown process
+  process(clk)
+  begin
+    if rising_edge(clk) then
+      if rst = '1' then
+        digit <= "1001";  -- Reset to 9
+      elsif one_sec_pulse = '1' then
+        if digit = 0 then
+          digit <= "1001";  -- Wrap around to 9
+        else
+          digit <= digit - 1;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  digit_slv <= std_logic_vector(digit);
+
+  -- 7-segment decoder
+  decoder_inst : entity work.bin2seg
+    port map (
+      clear => clear,
+      bin   => digit_slv,
+      seg   => seg
+    );
+
+  -- Enable only AN0 (right-most digit)
+  an <= "1110";  -- active-low: AN0 = 0
+
+end architecture behavioral;
