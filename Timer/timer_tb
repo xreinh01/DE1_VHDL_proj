@@ -1,0 +1,88 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity timer_tb is
+end entity timer_tb;
+
+architecture tb of timer_tb is
+
+  component clock_en is
+    generic (
+      n_periods : integer
+    );
+    port (
+      clk           : in  std_logic;
+      rst           : in  std_logic;
+      load          : in  std_logic;
+      start_minutes : in  unsigned(5 downto 0);
+      start_seconds : in  unsigned(5 downto 0);
+      pulse         : out std_logic;
+      seconds       : out unsigned(5 downto 0);
+      minutes       : out unsigned(5 downto 0)
+    );
+  end component;
+
+  -- Signals
+  signal clk           : std_logic := '0';
+  signal rst           : std_logic := '1';
+  signal load          : std_logic := '0';
+  signal start_minutes : unsigned(5 downto 0) := to_unsigned(2, 6); -- Start at 2:45
+  signal start_seconds : unsigned(5 downto 0) := to_unsigned(01, 6);
+  signal pulse         : std_logic;
+  signal seconds       : unsigned(5 downto 0);
+  signal minutes       : unsigned(5 downto 0);
+
+  constant tbperiod   : time := 10 ns; -- 100 MHz clock
+  signal tbclock      : std_logic := '0';
+  signal tbsimended   : std_logic := '0';
+
+begin
+
+  -- DUT
+  dut : component clock_en
+    generic map (
+      n_periods => 11 -- One pulse every 110 ns
+    )
+    port map (
+      clk           => clk,
+      rst           => rst,
+      load          => load,
+      start_minutes => start_minutes,
+      start_seconds => start_seconds,
+      pulse         => pulse,
+      seconds       => seconds,
+      minutes       => minutes
+    );
+
+  -- Clock generation
+  tbclock <= not tbclock after tbperiod / 2 when tbsimended /= '1' else '0';
+  clk <= tbclock;
+
+  -- Stimulus
+  stimuli : process
+  begin
+    -- Initial reset
+    rst <= '1';
+    wait for 50 ns;
+    rst <= '0';
+    wait for 20 ns;
+
+    -- Load the countdown time
+    load <= '1';
+    wait for 10 ns;
+    load <= '0';
+
+    -- Run the simulation long enough to observe countdown
+    wait for 100000000 ns;
+
+    report "Final time: " &
+           integer'image(to_integer(minutes)) & " min, " &
+           integer'image(to_integer(seconds)) & " sec";
+
+    -- End simulation
+    tbsimended <= '1';
+    wait;
+  end process;
+
+end architecture;
