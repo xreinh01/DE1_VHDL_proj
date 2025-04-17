@@ -1,0 +1,55 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity SevenSegMultiplexer is
+    Port ( clk     : in  STD_LOGIC;                      -- Clock input
+           score   : in  STD_LOGIC_VECTOR (7 downto 0);  -- 8-bit score input (2 digits)
+           seg     : out STD_LOGIC_VECTOR (6 downto 0);  -- Segment output for active display
+           anodes  : out STD_LOGIC_VECTOR (1 downto 0)   -- Display enable signals (AN0, AN1)
+           );
+end SevenSegMultiplexer;
+
+architecture Behavioral of SevenSegMultiplexer is
+
+    signal display_selector : STD_LOGIC := '0';  -- To alternate between the displays
+    signal num_disp : STD_LOGIC_VECTOR(3 downto 0);  -- Display number (tens or ones)
+
+    -- Instantiate the SevenSegDisplay component to decode digits
+    component SevenSegDisplay
+        Port ( num : in  STD_LOGIC_VECTOR (3 downto 0);
+               seg : out STD_LOGIC_VECTOR (6 downto 0)
+               );
+    end component;
+
+begin
+    -- Multiplexer logic to select the current display
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            display_selector <= NOT display_selector;  -- Toggle between '0' and '1'
+        end if;
+    end process;
+
+    -- Choose which digit to display and which display to enable
+    process(display_selector, score)
+    begin
+        case display_selector is
+            when '0' =>
+                num_disp <= score(7 downto 4);  -- Tens digit
+                anodes <= "10";  -- Enable AN0 (Tens display)
+            when '1' =>
+                num_disp <= score(3 downto 0);  -- Ones digit
+                anodes <= "01";  -- Enable AN1 (Ones display)
+            when others =>
+                num_disp <= "0000";  -- Default to 0
+                anodes <= "00";      -- Disable both displays
+        end case;
+    end process;
+
+    -- Instantiate the SevenSegDisplay component to decode the selected digit
+    SEG_DISP : SevenSegDisplay
+        port map (num => num_disp, seg => seg);
+
+end Behavioral;
