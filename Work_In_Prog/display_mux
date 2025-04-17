@@ -1,0 +1,86 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity display_mux is
+  port (
+    clk      : in std_logic;
+    minutes  : in unsigned(5 downto 0);
+    seconds  : in unsigned(5 downto 0);
+    SEG      : out std_logic_vector(6 downto 0);
+    AN       : out std_logic_vector(3 downto 0)
+  );
+end entity;
+
+architecture behavioral of display_mux is
+  -- Signals for the digits (4-bit BCD)
+  signal min_tens, min_units : std_logic_vector(3 downto 0);
+  signal sec_tens, sec_units : std_logic_vector(3 downto 0);
+  signal mux_index : unsigned(1 downto 0) := "00";
+
+  signal refresh_counter : unsigned(15 downto 0) := (others => '0');
+  constant refresh_limit : unsigned(15 downto 0) := to_unsigned(50000, 16); -- Adjust for your clock
+
+  signal muxed_digit : std_logic_vector(3 downto 0); -- The currently selected digit
+
+  -- Bin2seg decoder component
+  component bin2seg is
+    port (
+      clear : in  std_logic;
+      bin   : in  std_logic_vector(3 downto 0);
+      seg   : out std_logic_vector(6 downto 0)
+    );
+  end component;
+
+begin
+
+  -- Convert minutes and seconds into BCD digits
+  min_tens  <= std_logic_vector(to_unsigned(to_integer(minutes) / 10, 4));
+  min_units <= std_logic_vector(to_unsigned(to_integer(minutes) mod 10, 4));
+  sec_tens  <= std_logic_vector(to_unsigned(to_integer(seconds) / 10, 4));
+  sec_units <= std_logic_vector(to_unsigned(to_integer(seconds) mod 10, 4));
+
+  -- Clocked process for digit multiplexing
+  process(clk)
+  begin
+    if rising_edge(clk) then
+      if refresh_counter = refresh_limit then
+        refresh_counter <= (others => '0');
+        mux_index <= mux_index + 1;
+      else
+        refresh_counter <= refresh_counter + 1;
+      end if;
+    end if;
+  end process;
+
+  -- Select which digit to show
+  process(mux_index, min_units, min_tens, sec_units, sec_tens)
+  begin
+    case mux_index is
+      when "00" =>
+        muxed_digit <= min_units;
+        AN <= "1110";  -- Enable digit 0
+      when "01" =>
+        muxed_digit <= min_tens;
+        AN <= "1101";  -- Enable digit 1
+      when "10" =>
+        muxed_digit <= sec_units;
+        AN <= "1011";  -- Enable digit 2
+      when "11" =>
+        muxed_digit <= sec_tens;
+        AN <= "0111";  -- Enable digit 3
+      when others =>
+        muxed_digit <= "0000";
+        AN <= "1111";  -- All off
+    end case;
+  end process;
+
+  -- Connect bin2seg decoder
+  decoder_inst : bin2seg
+    port map (
+      clear => '0',
+      bin   => muxed_digit,
+      seg   => SEG
+    );
+
+end architecture;
