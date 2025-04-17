@@ -22,10 +22,10 @@ entity top_level is
         DP    : out   std_logic;                    --! Decimal point
         AN    : out   std_logic_vector(7 downto 0); --! Common anodes of all on-board displays
         BTNC  : in    std_logic;                    --! Clear the display
-        BTND  : in    std_logic;                     --! Switch between displays
-        BTNL  : in    std_logic;                     --! Switch between displays
-        BTNR  : in    std_logic;                     --! Switch between displays
-        BTNU  : in    std_logic;                     --! Switch between displays
+        BTND  : in    std_logic;                    --start clock 
+        BTNL  : in    std_logic;                    --add score L 
+        BTNR  : in    std_logic;                    --add score R 
+        BTNU  : in    std_logic;                    --stop clock 
         CLK100MHZ : in    std_logic                     --! Main clock
     );
     
