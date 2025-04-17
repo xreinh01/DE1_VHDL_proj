@@ -62,10 +62,20 @@ begin
       if (rst = '1') then
         sig_count   <= 0;
         sc_up_prev  <= '0';
-
+        unit <= 0;
+        tens <= 0;
+        
       else
         -- Rising edge detection for sc_up
         if (sc_up = '1' and sc_up_prev = '0') then
+            if unit = 9 then
+                unit <=0;
+                if tens = 9 then
+                    tens <= 0; else 
+                        tens <= tens + 1;
+                        end if;
+                else unit <= unit + 1;
+                end if;        
           if (sig_count < (2 ** n_bits - 1)) then
             sig_count <= sig_count + 1;
           end if;
