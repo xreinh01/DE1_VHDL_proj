@@ -16,6 +16,8 @@ This project implements a digital scoreboard system on the DE1 FPGA development 
 
 Work_In_Prog/Final
 
+https://github.com/xreinh01/DE1_VHDL_proj/tree/main/Work_In_Prog/Final
+
 ### The main contributions of the project are:
 
 ...
