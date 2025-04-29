@@ -26,5 +26,5 @@ https://github.com/xreinh01/DE1_VHDL_proj/tree/main/Work_In_Prog/Final
 
 
 ## Hardware description of demo application
-Describe your implementation. 
+toplevel: 
 ![Screenshot 2025-04-24 124212](https://github.com/user-attachments/assets/b99dc00b-bd77-415d-b49b-3ec6b8acddd6)
