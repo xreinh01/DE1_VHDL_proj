@@ -24,6 +24,12 @@ https://github.com/xreinh01/DE1_VHDL_proj/tree/main/Work_In_Prog/Final
 ...
 ...
 
+## Control scheme for a Nexys A7 50T
+
+[https://github.com/user-attachments/assets/](https://github.com/xreinh01/DE1_VHDL_proj/blob/main/NEXYS%20BOARD%20CONTROLS.drawio.png)
+
+Up and Right buttons are used for adding points for each team. The center button is used to reset the clock. Down button is used to load the timer from engaged switches. The switches are used for binary input that will convert to minutes and seconds showing length of each match.
+
 
 ## Hardware description of demo application
 toplevel: 
