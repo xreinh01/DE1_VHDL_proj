@@ -24,6 +24,13 @@ https://github.com/xreinh01/DE1_VHDL_proj/tree/main/Work_In_Prog/Final
 ...
 ...
 
+## Screenshot of an early testbench simulating match timer
+
+![TIMER](Timer/screen_tbtimer_v2.png)
+
+![SCORE]()
+
+
 ## Control scheme for a Nexys A7 50T
 
 ![NEXYS BOARD CONTROLS.drawio](https://github.com/xreinh01/DE1_VHDL_proj/blob/main/NEXYS%20BOARD%20CONTROLS.drawio.png)
